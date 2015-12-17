@@ -43,7 +43,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = new BodyModelBinder(new TestHttpRequestStreamReaderFactory());
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             mockInputFormatter.Verify(v => v.CanRead(It.IsAny<InputFormatterContext>()), Times.Once);
@@ -64,7 +64,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
 
@@ -91,7 +91,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotNull(binderResult);
@@ -111,7 +111,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, binderResult);
@@ -130,7 +130,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, binderResult);
@@ -156,7 +156,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
 
@@ -191,7 +191,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
 
@@ -226,7 +226,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binder = bindingContext.OperationBindingContext.ModelBinder;
 
             // Act
-            var binderResult = await binder.BindModelAsync(bindingContext);
+            var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.True(binderResult.IsModelSet);

@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNet.Mvc.ModelBinding.Validation;
-using Moq;
+//using Moq;
 using Xunit;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding.Test
@@ -33,22 +33,18 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var mockIntBinder = new Mock<IModelBinder>();
-            mockIntBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(
-                    delegate (ModelBindingContext context)
-                    {
-                        Assert.Same(bindingContext.ModelMetadata, context.ModelMetadata);
-                        Assert.Equal("someName", context.ModelName);
-                        Assert.Same(bindingContext.ValueProvider, context.ValueProvider);
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                Assert.Same(bindingContext.ModelMetadata, context.ModelMetadata);
+                Assert.Equal("someName", context.ModelName);
+                Assert.Same(bindingContext.ValueProvider, context.ValueProvider);
 
-                        return ModelBindingResult.SuccessAsync("someName", 42);
-                    });
-            var shimBinder = CreateCompositeBinder(mockIntBinder.Object);
+                context.Result = ModelBindingResult.Success("someName", 42);
+            });
+            var shimBinder = CreateCompositeBinder(mockIntBinder);
 
             // Act
-            var result = await shimBinder.BindModelAsync(bindingContext);
+            var result = await shimBinder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -76,22 +72,18 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var mockIntBinder = new Mock<IModelBinder>();
-            mockIntBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(
-                    delegate (ModelBindingContext context)
-                    {
-                        Assert.Same(bindingContext.ModelMetadata, context.ModelMetadata);
-                        Assert.Equal("someName", context.ModelName);
-                        Assert.Same(bindingContext.ValueProvider, context.ValueProvider);
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                Assert.Same(bindingContext.ModelMetadata, context.ModelMetadata);
+                Assert.Equal("someName", context.ModelName);
+                Assert.Same(bindingContext.ValueProvider, context.ValueProvider);
 
-                        return ModelBindingResult.SuccessAsync("someName", 42);
-                    });
-            var shimBinder = CreateCompositeBinder(mockIntBinder.Object);
+                context.Result = ModelBindingResult.Success("someName", 42);
+            });
+            var shimBinder = CreateCompositeBinder(mockIntBinder);
 
             // Act
-            var result = await shimBinder.BindModelAsync(bindingContext);
+            var result = await shimBinder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -123,22 +115,18 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var mockIntBinder = new Mock<IModelBinder>();
-            mockIntBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(
-                    delegate (ModelBindingContext context)
-                    {
-                        Assert.Same(bindingContext.ModelMetadata, context.ModelMetadata);
-                        Assert.Equal("someName", context.ModelName);
-                        Assert.Same(bindingContext.ValueProvider, context.ValueProvider);
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                Assert.Same(bindingContext.ModelMetadata, context.ModelMetadata);
+                Assert.Equal("someName", context.ModelName);
+                Assert.Same(bindingContext.ValueProvider, context.ValueProvider);
 
-                        return ModelBindingResult.SuccessAsync("someName", 42);
-                    });
-            var shimBinder = CreateCompositeBinder(mockIntBinder.Object);
+                context.Result = ModelBindingResult.Success("someName", 42);
+            });
+            var shimBinder = CreateCompositeBinder(mockIntBinder);
 
             // Act
-            var result = await shimBinder.BindModelAsync(bindingContext);
+            var result = await shimBinder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -170,28 +158,24 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var mockIntBinder = new Mock<IModelBinder>();
-            mockIntBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(
-                    delegate (ModelBindingContext mbc)
-                    {
-                        if (!string.IsNullOrEmpty(mbc.ModelName))
-                        {
-                            return ModelBindingResult.NoResultAsync;
-                        }
+            var mockIntBinder = new StubModelBinder(mbc =>
+            {
+                if (!string.IsNullOrEmpty(mbc.ModelName))
+                {
+                    return;
+                }
 
-                        Assert.Same(bindingContext.ModelMetadata, mbc.ModelMetadata);
-                        Assert.Equal("", mbc.ModelName);
-                        Assert.Same(bindingContext.ValueProvider, mbc.ValueProvider);
+                Assert.Same(bindingContext.ModelMetadata, mbc.ModelMetadata);
+                Assert.Equal("", mbc.ModelName);
+                Assert.Same(bindingContext.ValueProvider, mbc.ValueProvider);
 
-                        return ModelBindingResult.SuccessAsync(string.Empty, expectedModel);
-                    });
+                mbc.Result = ModelBindingResult.Success(string.Empty, expectedModel);
+            });
 
-            var shimBinder = CreateCompositeBinder(mockIntBinder.Object);
+            var shimBinder = CreateCompositeBinder(mockIntBinder);
 
             // Act
-            var result = await shimBinder.BindModelAsync(bindingContext);
+            var result = await shimBinder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -218,15 +202,15 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var modelBinder = new Mock<IModelBinder>();
-            modelBinder
-                .Setup(mb => mb.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(ModelBindingResult.FailedAsync("someName"));
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                context.Result = ModelBindingResult.Failed("someName");
+            });
 
-            var composite = CreateCompositeBinder(modelBinder.Object);
+            var composite = CreateCompositeBinder(mockIntBinder);
 
             // Act
-            var result = await composite.BindModelAsync(bindingContext);
+            var result = await composite.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, result);
@@ -250,21 +234,17 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var modelBinder = new Mock<IModelBinder>();
-            modelBinder
-                .Setup(mb => mb.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Callback<ModelBindingContext>(context =>
-                {
-                    Assert.Equal("someName", context.ModelName);
-                })
-                .Returns(ModelBindingResult.FailedAsync("someName"))
-                .Verifiable();
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                Assert.Equal("someName", context.ModelName);
+                context.Result = ModelBindingResult.Failed("someName");
+            });
 
-            var composite = CreateCompositeBinder(modelBinder.Object);
+            var composite = CreateCompositeBinder(mockIntBinder);
 
             // Act & Assert
-            var result = await composite.BindModelAsync(bindingContext);
-            modelBinder.Verify(mb => mb.BindModelAsync(It.IsAny<ModelBindingContext>()), Times.Once);
+            var result = await composite.BindModelResultAsync(bindingContext);
+            Assert.Equal(1, mockIntBinder.BindModelCount);
         }
 
         [Fact]
@@ -285,22 +265,18 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var modelBinder = new Mock<IModelBinder>();
-            modelBinder
-                .Setup(mb => mb.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Callback<ModelBindingContext>(context =>
-                {
-                    Assert.Equal("someName", context.ModelName);
-                    context.ModelState.AddModelError(context.ModelName, "this is an error message");
-                })
-                .Returns(ModelBindingResult.FailedAsync("someName"))
-                .Verifiable();
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                Assert.Equal("someName", context.ModelName);
+                context.ModelState.AddModelError(context.ModelName, "this is an error message");
+                context.Result = ModelBindingResult.Failed("someName");
+            });
 
-            var composite = CreateCompositeBinder(modelBinder.Object);
+            var composite = CreateCompositeBinder(mockIntBinder);
 
             // Act & Assert
-            var result = await composite.BindModelAsync(bindingContext);
-            modelBinder.Verify(mb => mb.BindModelAsync(It.IsAny<ModelBindingContext>()), Times.Once);
+            var result = await composite.BindModelResultAsync(bindingContext);
+            Assert.Equal(1, mockIntBinder.BindModelCount);
         }
 
         [Fact]
@@ -321,15 +297,15 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 FieldName = "someName",
             };
 
-            var modelBinder = new Mock<IModelBinder>();
-            modelBinder
-                .Setup(mb => mb.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(ModelBindingResult.SuccessAsync("someName", model: null));
+            var mockIntBinder = new StubModelBinder(context =>
+            {
+                context.Result = ModelBindingResult.Success("someName", model: null);
+            });
 
-            var composite = CreateCompositeBinder(modelBinder.Object);
+            var composite = CreateCompositeBinder(mockIntBinder);
 
             // Act
-            var result = await composite.BindModelAsync(bindingContext);
+            var result = await composite.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -339,38 +315,10 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
         }
 
         [Fact]
-        public async Task BindModel_UnsuccessfulBind_BinderFails_ReturnsNoResult()
-        {
-            // Arrange
-            var mockListBinder = new Mock<IModelBinder>();
-            mockListBinder.Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                          .Returns(ModelBindingResult.NoResultAsync)
-                          .Verifiable();
-
-            var shimBinder = mockListBinder.Object;
-
-            var bindingContext = new ModelBindingContext
-            {
-                FallbackToEmptyPrefix = false,
-                ModelMetadata = new EmptyModelMetadataProvider().GetMetadataForType(typeof(List<int>)),
-                ModelState = new ModelStateDictionary(),
-            };
-
-            // Act
-            var result = await shimBinder.BindModelAsync(bindingContext);
-
-            // Assert
-            Assert.Equal(ModelBindingResult.NoResult, result);
-            Assert.True(bindingContext.ModelState.IsValid);
-            mockListBinder.Verify();
-        }
-
-        [Fact]
         public async Task BindModel_UnsuccessfulBind_SimpleTypeNoFallback_ReturnsNoResult()
         {
             // Arrange
-            var innerBinder = Mock.Of<IModelBinder>();
-            var shimBinder = CreateCompositeBinder(innerBinder);
+            var shimBinder = CreateCompositeBinder(new StubModelBinder());
 
             var bindingContext = new ModelBindingContext
             {
@@ -383,7 +331,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             };
 
             // Act
-            var result = await shimBinder.BindModelAsync(bindingContext);
+            var result = await shimBinder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, result);
@@ -403,7 +351,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             var bindingContext = CreateBindingContext(binder, valueProvider, typeof(SimplePropertiesModel));
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -433,7 +381,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             var bindingContext = CreateBindingContext(binder, valueProvider, typeof(Person));
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -455,19 +403,13 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
         {
             // Arrange
             var valueProvider = new SimpleValueProvider();
-            var mockBinder = new Mock<IModelBinder>();
-            mockBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns((ModelBindingContext context) =>
-                {
-                    return ModelBindingResult.FailedAsync("someName");
-                });
+            var mockBinder = new StubModelBinder(ModelBindingResult.Failed("someName"));
 
-            var binder = CreateCompositeBinder(mockBinder.Object);
+            var binder = CreateCompositeBinder(mockBinder);
             var bindingContext = CreateBindingContext(binder, valueProvider, typeof(SimplePropertiesModel));
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, result);
@@ -477,16 +419,13 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
         public async Task BindModel_DoesNotAddAValidationNode_IfModelBindingResultIsNoResult()
         {
             // Arrange
-            var mockBinder = new Mock<IModelBinder>();
-            mockBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns(ModelBindingResult.NoResultAsync);
-            var binder = CreateCompositeBinder(mockBinder.Object);
+            var mockBinder = new StubModelBinder();
+            var binder = CreateCompositeBinder(mockBinder);
             var valueProvider = new SimpleValueProvider();
             var bindingContext = CreateBindingContext(binder, valueProvider, typeof(SimplePropertiesModel));
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, result);
@@ -498,19 +437,13 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             // Arrange
             var valueProvider = new SimpleValueProvider();
 
-            var mockBinder = new Mock<IModelBinder>();
-            mockBinder
-                .Setup(o => o.BindModelAsync(It.IsAny<ModelBindingContext>()))
-                .Returns((ModelBindingContext context) =>
-                {
-                    return ModelBindingResult.SuccessAsync("someName", 42);
-                });
+            var mockBinder = new StubModelBinder(ModelBindingResult.Success("someName", 42));
 
-            var binder = CreateCompositeBinder(mockBinder.Object);
+            var binder = CreateCompositeBinder(mockBinder);
             var bindingContext = CreateBindingContext(binder, valueProvider, typeof(SimplePropertiesModel));
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);

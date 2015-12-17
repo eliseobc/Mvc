@@ -19,7 +19,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             var binder = new CancellationTokenModelBinder();
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.NotEqual(ModelBindingResult.NoResult, result);
@@ -38,7 +38,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             var binder = new CancellationTokenModelBinder();
 
             // Act
-            var result = await binder.BindModelAsync(bindingContext);
+            var result = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
             Assert.Equal(ModelBindingResult.NoResult, result);

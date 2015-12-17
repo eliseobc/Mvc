@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc.Core;
 using Microsoft.AspNet.Mvc.Formatters;
 using Microsoft.AspNet.Mvc.Internal;
+using System.Diagnostics;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding
 {
@@ -33,8 +34,14 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         }
 
         /// <inheritdoc />
-        public Task<ModelBindingResult> BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(IModelBindingContext bindingContext)
         {
+            if (bindingContext == null)
+            {
+                throw new ArgumentNullException(nameof(bindingContext));
+            }
+            Debug.Assert(bindingContext.Result == null);
+
             // This method is optimized to use cached tasks when possible and avoid allocating
             // using Task.FromResult. If you need to make changes of this nature, profile
             // allocations afterwards and look for Task<ModelBindingResult>.
@@ -45,7 +52,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             {
                 // Formatters are opt-in. This model either didn't specify [FromBody] or specified something
                 // incompatible so let other binders run.
-                return ModelBindingResult.NoResultAsync;
+                return Internal.TaskCache.CompletedTask;
             }
 
             return BindModelCoreAsync(bindingContext);
@@ -58,13 +65,8 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         /// <returns>
         /// A <see cref="Task{ModelBindingResult}"/> which when completed returns a <see cref="ModelBindingResult"/>.
         /// </returns>
-        private async Task<ModelBindingResult> BindModelCoreAsync(ModelBindingContext bindingContext)
+        private async Task BindModelCoreAsync(IModelBindingContext bindingContext)
         {
-            if (bindingContext == null)
-            {
-                throw new ArgumentNullException(nameof(bindingContext));
-            }
-
             // For compatibility with MVC 5.0 for top level object we want to consider an empty key instead of
             // the parameter name/a custom name. In all other cases (like when binding body to a property) we
             // consider the entire ModelName as a prefix.
@@ -91,7 +93,8 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                 // This model binder is the only handler for the Body binding source and it cannot run twice. Always
                 // tell the model binding system to skip other model binders and never to fall back i.e. indicate a
                 // fatal error.
-                return ModelBindingResult.Failed(modelBindingKey);
+                bindingContext.Result = ModelBindingResult.Failed(modelBindingKey);
+                return;
             }
 
             try
@@ -107,10 +110,12 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                 {
                     // Formatter encountered an error. Do not use the model it returned. As above, tell the model
                     // binding system to skip other model binders and never to fall back.
-                    return ModelBindingResult.Failed(modelBindingKey);
+                    bindingContext.Result = ModelBindingResult.Failed(modelBindingKey);
+                    return;
                 }
 
-                return ModelBindingResult.Success(modelBindingKey, model);
+                bindingContext.Result = ModelBindingResult.Success(modelBindingKey, model);
+                return;
             }
             catch (Exception ex)
             {
@@ -119,7 +124,8 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
                 // This model binder is the only handler for the Body binding source and it cannot run twice. Always
                 // tell the model binding system to skip other model binders and never to fall back i.e. indicate a
                 // fatal error.
-                return ModelBindingResult.Failed(modelBindingKey);
+                bindingContext.Result = ModelBindingResult.Failed(modelBindingKey);
+                return;
             }
         }
     }

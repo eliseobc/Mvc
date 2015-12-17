@@ -7,7 +7,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
 {
     public class MutableObjectBinderContext
     {
-        public ModelBindingContext ModelBindingContext { get; set; }
+        public IModelBindingContext ModelBindingContext { get; set; }
 
         public IReadOnlyList<ModelMetadata> PropertyMetadata { get; set; }
     }

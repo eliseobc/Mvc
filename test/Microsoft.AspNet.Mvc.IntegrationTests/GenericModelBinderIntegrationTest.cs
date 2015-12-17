@@ -8,6 +8,7 @@ using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Mvc.Abstractions;
 using Microsoft.AspNet.Mvc.ModelBinding;
 using Xunit;
+using System.Diagnostics;
 
 namespace Microsoft.AspNet.Mvc.IntegrationTests
 {
@@ -150,18 +151,25 @@ namespace Microsoft.AspNet.Mvc.IntegrationTests
 
         private class AddressBinder : IModelBinder
         {
-            public Task<ModelBindingResult> BindModelAsync(ModelBindingContext bindingContext)
+            public Task BindModelAsync(IModelBindingContext bindingContext)
             {
+                if (bindingContext == null)
+                {
+                    throw new ArgumentNullException(nameof(bindingContext));
+                }
+                Debug.Assert(bindingContext.Result == null);
+
                 var allowedBindingSource = bindingContext.BindingSource;
-                if (allowedBindingSource == null || 
+                if (allowedBindingSource == null ||
                     !allowedBindingSource.CanAcceptDataFrom(BindAddressAttribute.Source))
                 {
                     // Binding Sources are opt-in. This model either didn't specify one or specified something
                     // incompatible so let other binders run.
-                    return ModelBindingResult.NoResultAsync;
+                    return Internal.TaskCache.CompletedTask;
                 }
 
-                return ModelBindingResult.SuccessAsync(bindingContext.ModelName, new Address());
+                bindingContext.Result = ModelBindingResult.Success(bindingContext.ModelName, new Address());
+                return Internal.TaskCache.CompletedTask;
             }
         }
 

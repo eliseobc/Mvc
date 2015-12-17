@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,15 +14,21 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
     public class CancellationTokenModelBinder : IModelBinder
     {
         /// <inheritdoc />
-        public Task<ModelBindingResult> BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(IModelBindingContext bindingContext)
         {
+            if (bindingContext == null)
+            {
+                throw new ArgumentNullException(nameof(bindingContext));
+            }
+            Debug.Assert(bindingContext.Result == null);
+
             if (bindingContext.ModelType == typeof(CancellationToken))
             {
                 var model = bindingContext.OperationBindingContext.HttpContext.RequestAborted;
-                return ModelBindingResult.SuccessAsync(bindingContext.ModelName, model);
+                bindingContext.Result = ModelBindingResult.Success(bindingContext.ModelName, model);
             }
 
-            return ModelBindingResult.NoResultAsync;
+            return Internal.TaskCache.CompletedTask;
         }
     }
 }
