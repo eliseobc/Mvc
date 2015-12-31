@@ -232,26 +232,29 @@ namespace Microsoft.AspNet.Mvc
             return true;
         }
 
-        /// <inheritdoc />
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if unable to generate a target URL for a validation request.
-        /// </exception>
-        public virtual IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ClientModelValidationContext context)
+        public virtual void AddValidation(ClientModelValidationContext context)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var metadata = context.ModelMetadata;
-            var rule = new ModelClientValidationRemoteRule(
-                FormatErrorMessage(metadata.GetDisplayName()),
-                GetUrl(context),
-                HttpMethod,
-                FormatAdditionalFieldsForClientValidation(metadata.PropertyName));
+            context.Attributes.Add("data-val-remote", FormatErrorMessage(context.ModelMetadata.GetDisplayName()));
+            context.Attributes.Add("data-val-remote-url", GetUrl(context));
 
-            return new[] { rule };
+            if (!string.IsNullOrEmpty(HttpMethod))
+            {
+                context.Attributes.Add("data-val-remote-type", HttpMethod);
+            }
+
+            context.Attributes.Add(
+                "data-val-remote-additionalfields",
+                FormatAdditionalFieldsForClientValidation(context.ModelMetadata.PropertyName));
+
+            if (!context.Attributes.ContainsKey("data-val"))
+            {
+                context.Attributes.Add("data-val", "true");
+            }
         }
 
         private static IEnumerable<string> SplitAndTrimPropertyNames(string original)

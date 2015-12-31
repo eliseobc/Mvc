@@ -10,7 +10,6 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Html;
 using Microsoft.AspNet.Mvc.ModelBinding;
-using Microsoft.AspNet.Mvc.ModelBinding.Validation;
 using Microsoft.AspNet.Mvc.Rendering;
 using Microsoft.AspNet.Mvc.ViewEngines;
 using Microsoft.AspNet.Mvc.ViewFeatures.Buffer;
@@ -1198,14 +1197,6 @@ namespace Microsoft.AspNet.Mvc.ViewFeatures
             }
 
             return resolvedValue;
-        }
-
-        /// <inheritdoc />
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ModelExplorer modelExplorer,
-            string expression)
-        {
-            return _htmlGenerator.GetClientValidationRules(ViewContext, modelExplorer, expression);
         }
 
         /// <summary>

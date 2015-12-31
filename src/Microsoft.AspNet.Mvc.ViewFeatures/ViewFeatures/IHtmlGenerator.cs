@@ -341,8 +341,9 @@ namespace Microsoft.AspNet.Mvc.ViewFeatures
         /// Not used directly in <see cref="HtmlHelper"/>. Exposed publicly for use in other <see cref="IHtmlHelper"/>
         /// implementations.
         /// </remarks>
-        IEnumerable<ModelClientValidationRule> GetClientValidationRules(
+        void AddValidationAttributes(
             ViewContext viewContext,
+            TagBuilder tagBuilder,
             ModelExplorer modelExplorer,
             string expression);
 

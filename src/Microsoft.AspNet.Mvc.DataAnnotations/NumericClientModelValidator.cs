@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNet.Mvc.DataAnnotations;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
@@ -14,14 +13,19 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
     public class NumericClientModelValidator : IClientModelValidator
     {
         /// <inheritdoc />
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ClientModelValidationContext context)
+        public void AddValidation(ClientModelValidationContext context)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return new[] { new ModelClientValidationNumericRule(GetErrorMessage(context.ModelMetadata)) };
+            context.Attributes.Add("data-val-number", GetErrorMessage(context.ModelMetadata));
+
+            if (!context.Attributes.ContainsKey("data-val"))
+            {
+                context.Attributes.Add("data-val", "true");
+            }
         }
 
         private string GetErrorMessage(ModelMetadata modelMetadata)

@@ -30,14 +30,10 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
         /// <summary>
         /// Gets the <typeparamref name="TAttribute"/> instance.
         /// </summary>
-        public TAttribute Attribute
-        {
-            get;
-        }
+        public TAttribute Attribute { get; }
 
         /// <inheritdoc />
-        public abstract IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ClientModelValidationContext context);
+        public abstract void AddValidation(ClientModelValidationContext context);
 
         /// <summary>
         /// Gets the error message formatted using the <see cref="Attribute"/>.

@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+
 namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
 {
     /// <summary>
@@ -17,9 +19,13 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
         public ClientModelValidationContext(
             ActionContext actionContext,
             ModelMetadata metadata,
-            IModelMetadataProvider metadataProvider)
+            IModelMetadataProvider metadataProvider,
+            IDictionary<string, string> attributes)
             : base(actionContext, metadata, metadataProvider)
         {
+            Attributes = attributes;
         }
+
+        public IDictionary<string, string> Attributes { get; }
     }
 }

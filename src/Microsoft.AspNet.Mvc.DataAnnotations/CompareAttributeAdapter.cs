@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Microsoft.Extensions.Localization;
@@ -11,26 +10,29 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
 {
     public class CompareAttributeAdapter : AttributeAdapterBase<CompareAttribute>
     {
+        private readonly string _otherProperty;
+
         public CompareAttributeAdapter(CompareAttribute attribute, IStringLocalizer stringLocalizer)
             : base(new CompareAttributeWrapper(attribute), stringLocalizer)
         {
-            if (attribute == null)
-            {
-                throw new ArgumentNullException(nameof(attribute));
-            }
+            _otherProperty = "*." + Attribute.OtherProperty;
+
         }
 
-        public override IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ClientModelValidationContext context)
+        public override void AddValidation(ClientModelValidationContext context)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var errorMessage = GetErrorMessage(context);
-            var clientRule = new ModelClientValidationEqualToRule(errorMessage, "*." + Attribute.OtherProperty);
-            return new[] { clientRule };
+            context.Attributes.Add("data-val-equalto", GetErrorMessage(context));
+            context.Attributes.Add("data-value-equalto-other", _otherProperty);
+
+            if (!context.Attributes.ContainsKey("data-val"))
+            {
+                context.Attributes.Add("data-val", "true");
+            }
         }
 
         /// <inheritdoc />

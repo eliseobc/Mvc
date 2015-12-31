@@ -2,30 +2,36 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNet.Mvc.DataAnnotations;
+using System.Globalization;
 using Microsoft.Extensions.Localization;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
 {
     public class MinLengthAttributeAdapter : AttributeAdapterBase<MinLengthAttribute>
     {
+        private readonly string _min;
+
         public MinLengthAttributeAdapter(MinLengthAttribute attribute, IStringLocalizer stringLocalizer)
             : base(attribute, stringLocalizer)
         {
+            _min = Attribute.Length.ToString(CultureInfo.InvariantCulture);
         }
 
-        public override IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ClientModelValidationContext context)
+        public override void AddValidation(ClientModelValidationContext context)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var message = GetErrorMessage(context);
-            return new[] { new ModelClientValidationMinLengthRule(message, Attribute.Length) };
+            context.Attributes.Add("data-val-minlength", GetErrorMessage(context));
+            context.Attributes.Add("data-val-minlength-min", _min);
+
+            if (!context.Attributes.ContainsKey("data-val"))
+            {
+                context.Attributes.Add("data-val", "true");
+            }
         }
 
         /// <inheritdoc />

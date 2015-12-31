@@ -95,14 +95,6 @@ namespace Microsoft.AspNet.Mvc.TagHelpers
             return tagBuilder;
         }
 
-        protected override IDictionary<string, object> GetValidationAttributes(
-            ViewContext viewContext,
-            ModelExplorer modelExplorer,
-            string name)
-        {
-            return ValidationAttributes;
-        }
-
         private static IOptions<MvcViewOptions> GetOptions()
         {
             var mockOptions = new Mock<IOptions<MvcViewOptions>>();

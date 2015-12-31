@@ -2,35 +2,38 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNet.Mvc.DataAnnotations;
 using Microsoft.Extensions.Localization;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
 {
     public class RangeAttributeAdapter : AttributeAdapterBase<RangeAttribute>
     {
+        private readonly string _max;
+        private readonly string _min;
+
         public RangeAttributeAdapter(RangeAttribute attribute, IStringLocalizer stringLocalizer)
             : base(attribute, stringLocalizer)
         {
+            _max = Attribute.Maximum.ToString();
+            _min = Attribute.Minimum.ToString();
         }
 
-        public override IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ClientModelValidationContext context)
+        public override void AddValidation(ClientModelValidationContext context)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            // TODO: Only calling this so Minimum and Maximum convert. Caused by a bug in CoreFx.
-            Attribute.IsValid(null);
+            context.Attributes.Add("data-val-range", GetErrorMessage(context));
+            context.Attributes.Add("data-val-range-max", _max);
+            context.Attributes.Add("data-val-range-min", _min);
 
-            var errorMessage = GetErrorMessage(context);
-
-
-            return new[] { new ModelClientValidationRangeRule(errorMessage, Attribute.Minimum, Attribute.Maximum) };
+            if (!context.Attributes.ContainsKey("data-val"))
+            {
+                context.Attributes.Add("data-val", "true");
+            }
         }
 
         /// <inheritdoc />

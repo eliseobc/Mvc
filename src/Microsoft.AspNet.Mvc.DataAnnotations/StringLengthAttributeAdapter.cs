@@ -2,33 +2,40 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNet.Mvc.DataAnnotations;
+using System.Globalization;
 using Microsoft.Extensions.Localization;
 
 namespace Microsoft.AspNet.Mvc.ModelBinding.Validation
 {
     public class StringLengthAttributeAdapter : AttributeAdapterBase<StringLengthAttribute>
     {
+        private readonly string _max;
+        private readonly string _min;
+
         public StringLengthAttributeAdapter(StringLengthAttribute attribute, IStringLocalizer stringLocalizer)
             : base(attribute, stringLocalizer)
         {
+            _max = Attribute.MaximumLength.ToString(CultureInfo.InvariantCulture);
+            _min = Attribute.MinimumLength.ToString(CultureInfo.InvariantCulture);
         }
 
-        public override IEnumerable<ModelClientValidationRule> GetClientValidationRules(
-            ClientModelValidationContext context)
+        /// <inheritdoc />
+        public override void AddValidation(ClientModelValidationContext context)
         {
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var errorMessage = GetErrorMessage(context);
-            var rule = new ModelClientValidationStringLengthRule(errorMessage,
-                                                                 Attribute.MinimumLength,
-                                                                 Attribute.MaximumLength);
-            return new[] { rule };
+            context.Attributes.Add("data-val-length", GetErrorMessage(context));
+            context.Attributes.Add("data-val-length-max", _max);
+            context.Attributes.Add("data-val-length-min", _min);
+
+            if (!context.Attributes.ContainsKey("data-val"))
+            {
+                context.Attributes.Add("data-val", "true");
+            }
         }
 
         /// <inheritdoc />

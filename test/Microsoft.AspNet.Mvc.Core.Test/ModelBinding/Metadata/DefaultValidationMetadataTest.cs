@@ -78,7 +78,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Metadata
 
         private class TestClientModelValidationAttribute : Attribute, IClientModelValidator
         {
-            public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ClientModelValidationContext context)
+            public void AddValidation(ClientModelValidationContext context)
             {
                 throw new NotImplementedException();
             }
@@ -86,7 +86,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Metadata
 
         private class TestValidationAttribute : Attribute, IModelValidator, IClientModelValidator
         {
-            public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ClientModelValidationContext context)
+            public void AddValidation(ClientModelValidationContext context)
             {
                 throw new NotImplementedException();
             }
