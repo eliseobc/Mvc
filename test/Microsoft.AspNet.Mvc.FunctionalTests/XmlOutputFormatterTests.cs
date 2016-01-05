@@ -64,8 +64,7 @@ namespace Microsoft.AspNet.Mvc.FunctionalTests
         }
 
         [ConditionalFact]
-        // Mono issue - https://github.com/aspnet/External/issues/18
-        [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
+        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "aspnet/External#18, DCS issue on Mono")]
         public async Task XmlSerializerFailsAndDataContractSerializerIsCalled()
         {
             // Arrange

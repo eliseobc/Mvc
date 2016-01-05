@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using BasicWebSite.Models;
-using Microsoft.AspNet.Mvc.Infrastructure;
 using Microsoft.AspNet.Testing.xunit;
 using Newtonsoft.Json;
 using Xunit;
@@ -100,8 +99,7 @@ namespace Microsoft.AspNet.Mvc.FunctionalTests
         }
 
         [ConditionalFact]
-        // Mono issue - https://github.com/aspnet/External/issues/18
-        [FrameworkSkipCondition(RuntimeFrameworks.Mono)]
+        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "aspnet/External#18, DCS issue on Mono")]
         public async Task DerivedClassLevelAttribute_OveridesBaseClassLevel()
         {
             // Arrange
