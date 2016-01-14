@@ -105,15 +105,18 @@ namespace Microsoft.AspNet.Mvc.Infrastructure
         [Fact]
         public void ReferenceAssemblies_ReturnsLoadableReferenceAssemblies()
         {
-            // Arrange
-            var provider = new MvcAssembliesTestingProvider();
-            var expected = provider.LoadableReferenceAssemblies.OrderBy(p => p, StringComparer.Ordinal);
+            if (PlatformServices.Default?.LibraryManager != null)
+            {
+                // Arrange
+                var provider = new MvcAssembliesTestingProvider();
+                var expected = provider.LoadableReferenceAssemblies.OrderBy(p => p, StringComparer.Ordinal);
 
-            // Act
-            var referenceAssemblies = provider.ReferenceAssemblies.OrderBy(p => p, StringComparer.Ordinal);
+                // Act
+                var referenceAssemblies = provider.ReferenceAssemblies.OrderBy(p => p, StringComparer.Ordinal);
 
-            // Assert
-            Assert.Equal(expected, referenceAssemblies);
+                // Assert
+                Assert.Equal(expected, referenceAssemblies);
+            }
         }
 
         private static ILibraryManager CreateLibraryManager()

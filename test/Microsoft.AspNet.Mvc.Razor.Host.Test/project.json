@@ -11,9 +11,9 @@
       "type": "build"
     },
     "Microsoft.AspNet.Mvc.ViewFeatures": "6.0.0-*",
-    "Microsoft.AspNet.Testing": "1.0.0-*",
-    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+    "Microsoft.AspNet.Testing": "1.0.0-*"
   },
+  "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"
   },
@@ -23,13 +23,19 @@
   },
   "frameworks": {
     "dnx451": {
+      "frameworkAssemblies": {
+        "System.Runtime": "",
+        "System.Threading.Tasks": ""
+      },
       "dependencies": {
-        "Moq": "4.2.1312.1622"
+        "Moq": "4.2.1312.1622",
+        "xunit.runner.console": "2.1.0"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "moq.netcore": "4.4.0-beta8"
+        "moq.netcore": "4.4.0-beta8",
+        "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     }
   },

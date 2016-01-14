@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Dnx.Compilation.CSharp;
 using Microsoft.Extensions.CompilationAbstractions;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.PlatformAbstractions;
 using Xunit;
 
@@ -521,9 +522,16 @@ public class Person
 
         private IEnumerable<MetadataReference> GetReferences()
         {
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
-            var environment = PlatformServices.Default.Application;
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return DependencyContext.Default.CompileLibraries
+                    .SelectMany(library => library.ResolveReferencePaths())
+                    .Select(path => MetadataReference.CreateFromFile(path))
+                    .ToList();
+            }
 
+            var environment = PlatformServices.Default.Application;
             var references = new List<MetadataReference>();
 
             var libraryExports = libraryExporter.GetAllExports(environment.ApplicationName);

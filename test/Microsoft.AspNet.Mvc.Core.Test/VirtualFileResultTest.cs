@@ -262,7 +262,7 @@ namespace Microsoft.AspNet.Mvc
         {
             // Arrange
             // Point the IFileProvider root to a different subfolder
-            using (var fileProvider = new PhysicalFileProvider(Path.GetFullPath("./Properties")))
+            using (var fileProvider = new PhysicalFileProvider(Path.GetFullPath("../../Properties")))
             {
                 var filePathResult = new VirtualFileResult(path, "text/plain")
                 {
@@ -278,35 +278,6 @@ namespace Microsoft.AspNet.Mvc
                 // Assert
                 Assert.Equal(expectedMessage, ex.Message);
                 Assert.Equal(path, ex.FileName);
-            }
-        }
-
-        [Theory]
-        [InlineData("/SubFolder/SubFolderTestFile.txt")]
-        [InlineData("\\SubFolder\\SubFolderTestFile.txt")]
-        [InlineData("/SubFolder\\SubFolderTestFile.txt")]
-        [InlineData("\\SubFolder/SubFolderTestFile.txt")]
-        [InlineData("./SubFolder/SubFolderTestFile.txt")]
-        [InlineData(".\\SubFolder\\SubFolderTestFile.txt")]
-        [InlineData("./SubFolder\\SubFolderTestFile.txt")]
-        [InlineData(".\\SubFolder/SubFolderTestFile.txt")]
-        [InlineData("~/SubFolder/SubFolderTestFile.txt")]
-        [InlineData("~/SubFolder\\SubFolderTestFile.txt")]
-        public void ExecuteResultAsync_ThrowsDirectoryNotFound_IfFileProviderCanNotFindTheDirectory(string path)
-        {
-            // Arrange
-            // Point the IFileProvider root to a different subfolder
-            using (var fileProvider = new PhysicalFileProvider(Path.GetFullPath("./Properties")))
-            {
-                var filePathResult = new VirtualFileResult(path, "text/plain")
-                {
-                    FileProvider = fileProvider,
-                };
-
-                var context = new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor());
-
-                // Act & Assert
-                Assert.ThrowsAsync<DirectoryNotFoundException>(() => filePathResult.ExecuteResultAsync(context));
             }
         }
 

@@ -22,10 +22,15 @@ namespace Microsoft.AspNet.Mvc.Razor.Compilation
         public void Compile_ReturnsCompilationResult()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var content = @"
 public class MyTestType  {}";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             var mvcRazorHost = new Mock<IMvcRazorHost>();
             mvcRazorHost.SetupGet(m => m.MainClassNamePrefix)
                         .Returns(string.Empty);
@@ -52,13 +57,18 @@ public class MyTestType  {}";
         public void Compile_ReturnsCompilationFailureWithPathsFromLinePragmas()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var viewPath = "some-relative-path";
             var fileContent = "test file content";
             var content = $@"
 #line 1 ""{viewPath}""
 this should fail";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             var mvcRazorHost = Mock.Of<IMvcRazorHost>();
             var fileProvider = new TestFileProvider();
             var fileInfo = fileProvider.AddFile(viewPath, fileContent);
@@ -87,10 +97,15 @@ this should fail";
         public void Compile_ReturnsGeneratedCodePath_IfLinePragmaIsNotAvailable()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var fileContent = "file content";
             var content = @"this should fail";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             var mvcRazorHost = Mock.Of<IMvcRazorHost>();
 
             var compilationService = new DefaultRoslynCompilationService(
@@ -120,12 +135,17 @@ this should fail";
         public void Compile_DoesNotThrow_IfFileCannotBeRead()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var path = "some-relative-path";
             var content = $@"
 #line 1 ""{path}""
 this should fail";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             var mvcRazorHost = Mock.Of<IMvcRazorHost>();
 
             var mockFileInfo = new Mock<IFileInfo>();
@@ -159,6 +179,12 @@ this should fail";
         public void Compile_UsesApplicationsCompilationSettings_ForParsingAndCompilation()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var content = @"
 #if MY_CUSTOM_DEFINE
 public class MyCustomDefinedClass {}
@@ -167,7 +193,6 @@ public class MyNonCustomDefinedClass {}
 #endif
 ";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             var mvcRazorHost = new Mock<IMvcRazorHost>();
             mvcRazorHost.SetupGet(m => m.MainClassNamePrefix)
                 .Returns("My");
@@ -198,11 +223,16 @@ public class MyNonCustomDefinedClass {}
         public void Compile_ReturnsSingleTypeThatStartsWithMainClassNamePrefix()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var content = @"
 public class RazorPrefixType  {}
 public class NotRazorPrefixType {}";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             var mvcRazorHost = new Mock<IMvcRazorHost>();
             mvcRazorHost.SetupGet(m => m.MainClassNamePrefix)
                         .Returns("RazorPrefix");
@@ -231,6 +261,12 @@ public class NotRazorPrefixType {}";
         public void GetCompilationFailedResult_ReturnsCompilationResult_WithGroupedMessages()
         {
             // Arrange
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var viewPath = "Views/Home/Index";
             var generatedCodeFileName = "Generated Code";
             var fileProvider = new TestFileProvider();
@@ -242,7 +278,7 @@ public class NotRazorPrefixType {}";
                 .Returns(options);
             var compilationService = new DefaultRoslynCompilationService(
                 PlatformServices.Default.Application,
-                CompilationServices.Default.LibraryExporter,
+                libraryExporter,
                 Mock.Of<IMvcRazorHost>(),
                 optionsAccessor.Object,
                 GetFileProviderAccessor(fileProvider),
@@ -325,9 +361,14 @@ public class NotRazorPrefixType {}";
         [Fact]
         public void Compile_RunsCallback()
         {
+            var libraryExporter = CompilationServices.Default?.LibraryExporter;
+            if (libraryExporter == null)
+            {
+                return;
+            }
+
             var content = "public class MyTestType  {}";
             var applicationEnvironment = PlatformServices.Default.Application;
-            var libraryExporter = CompilationServices.Default.LibraryExporter;
             RoslynCompilationContext usedCompilation = null;
             var mvcRazorHost = new Mock<IMvcRazorHost>();
             mvcRazorHost.SetupGet(m => m.MainClassNamePrefix)
