@@ -2208,7 +2208,7 @@ namespace Microsoft.AspNet.Mvc.Internal
                 return _controller;
             }
 
-            public void ReleaseController(object controller)
+            public void ReleaseController(ControllerContext context, object controller)
             {
                 Assert.NotNull(controller);
                 Assert.Same(_controller, controller);

@@ -35,7 +35,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
             };
 
             var activator = new Mock<IControllerActivator>();
-            activator.Setup(a => a.Create(context, typeof(MyController)))
+            activator.Setup(a => a.Create(context))
                      .Returns(expected)
                      .Verifiable();
 
@@ -186,37 +186,6 @@ namespace Microsoft.AspNet.Mvc.Controllers
                 exception.Message);
         }
 
-        [Theory]
-        [InlineData(typeof(int))]
-        [InlineData(typeof(OpenGenericType<>))]
-        [InlineData(typeof(AbstractType))]
-        [InlineData(typeof(InterfaceType))]
-        public void CreateController_ThrowsIfControllerCannotBeActivated(Type type)
-        {
-            // Arrange
-            var actionDescriptor = new ControllerActionDescriptor
-            {
-                ControllerTypeInfo = type.GetTypeInfo()
-            };
-
-            var context = new ControllerContext()
-            {
-                ActionDescriptor = actionDescriptor,
-                HttpContext = new DefaultHttpContext()
-                {
-                    RequestServices = GetServices(),
-                },
-            };
-            var factory = CreateControllerFactory(new DefaultControllerActivator(new TypeActivatorCache()));
-
-            // Act and Assert
-            var exception = Assert.Throws<InvalidOperationException>(() => factory.CreateController(context));
-            Assert.Equal(
-                $"The type '{type.FullName}' cannot be activated by '{typeof(DefaultControllerFactory).FullName}' " +
-                "because it is either a value type, an interface, an abstract class or an open generic type.",
-                exception.Message);
-        }
-
         [Fact]
         public void DefaultControllerFactory_DisposesIDisposableController()
         {
@@ -227,20 +196,9 @@ namespace Microsoft.AspNet.Mvc.Controllers
             // Act + Assert
             Assert.False(controller.Disposed);
 
-            factory.ReleaseController(controller);
+            factory.ReleaseController(Mock.Of<ControllerContext>(), controller);
 
             Assert.True(controller.Disposed);
-        }
-
-        [Fact]
-        public void DefaultControllerFactory_ReleasesNonIDisposableController()
-        {
-            // Arrange
-            var factory = CreateControllerFactory();
-            var controller = new object();
-
-            // Act + Assert (does not throw)
-            factory.ReleaseController(controller);
         }
 
         private IServiceProvider GetServices()
@@ -258,7 +216,12 @@ namespace Microsoft.AspNet.Mvc.Controllers
 
         private static DefaultControllerFactory CreateControllerFactory(IControllerActivator controllerActivator = null)
         {
-            controllerActivator = controllerActivator ?? Mock.Of<IControllerActivator>();
+            var controllerActivatorMock = new Mock<IControllerActivator>();
+            controllerActivatorMock
+                .Setup(s => s.Release(It.IsAny<ControllerContext>(), It.IsAny<object>()))
+                .Callback<ControllerContext, object>((c, o) => ((IDisposable)o).Dispose());
+
+            controllerActivator = controllerActivator ?? controllerActivatorMock.Object;
             var propertyActivators = new IControllerPropertyActivator[]
             {
                 new DefaultControllerPropertyActivator(),
@@ -311,22 +274,6 @@ namespace Microsoft.AspNet.Mvc.Controllers
         }
 
         private class TestService
-        {
-        }
-
-        private class Controller
-        {
-        }
-
-        private class OpenGenericType<T> : Controller
-        {
-        }
-
-        private abstract class AbstractType : Controller
-        {
-        }
-
-        private interface InterfaceType
         {
         }
     }
