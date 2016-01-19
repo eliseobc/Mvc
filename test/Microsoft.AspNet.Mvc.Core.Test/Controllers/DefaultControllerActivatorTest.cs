@@ -34,7 +34,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
             var actionContext = new ControllerContext(
                 new ActionContext(
                     httpContext,
-                                                  new RouteData(),
+                    new RouteData(),
                     new ControllerActionDescriptor
                     {
                         ControllerTypeInfo = type.GetTypeInfo()
@@ -99,7 +99,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
             serviceProvider.Setup(s => s.GetService(typeof(TestService)))
                            .Returns(testService)
                            .Verifiable();
-                           
+
             var httpContext = new DefaultHttpContext
             {
                 RequestServices = serviceProvider.Object
@@ -108,7 +108,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
             var actionContext = new ControllerContext(
                 new ActionContext(
                     httpContext,
-                                                  new RouteData(),
+                    new RouteData(),
                     new ControllerActionDescriptor
                     {
                         ControllerTypeInfo = typeof(TypeDerivingFromControllerWithServices).GetTypeInfo()
