@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.AspNet.Mvc.ViewComponents;
@@ -86,7 +87,7 @@ namespace Microsoft.AspNet.Mvc.ViewFeatures.Logging
             }
         }
 
-        private class ViewComponentLogScope : ILogValues
+        private class ViewComponentLogScope : IReadOnlyList<KeyValuePair<string, object>>
         {
             private readonly ViewComponentDescriptor _descriptor;
 
@@ -95,18 +96,47 @@ namespace Microsoft.AspNet.Mvc.ViewFeatures.Logging
                 _descriptor = descriptor;
             }
 
-            public IEnumerable<KeyValuePair<string, object>> GetValues()
+            public KeyValuePair<string, object> this[int index]
             {
-                return new KeyValuePair<string, object>[]
+                get
+                {
+                    if (index == 0)
+                    {
+                        return new KeyValuePair<string, object>("ViewComponentName", _descriptor.DisplayName);
+                    }
+                    else if (index == 1)
+                    {
+                        return new KeyValuePair<string, object>("ViewComponentId", _descriptor.Id);
+                    }
+                    throw new IndexOutOfRangeException(nameof(index));
+                }
+            }
+
+            public int Count
+            {
+                get
+                {
+                    return 2;
+                }
+            }
+
+            public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+            {
+                return new List<KeyValuePair<string, object>>
                 {
                     new KeyValuePair<string, object>("ViewComponentName", _descriptor.DisplayName),
-                    new KeyValuePair<string, object>("ViewComponentId", _descriptor.Id),
-                };
+                    new KeyValuePair<string, object>("ViewComponentId", _descriptor.Id)
+                }.GetEnumerator();
             }
 
             public override string ToString()
             {
                 return _descriptor.DisplayName;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
     }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.AspNet.Mvc.Abstractions;
@@ -56,7 +57,7 @@ namespace Microsoft.AspNet.Mvc.Logging
             logger.LogDebug(3, "No actions matched the current request");
         }
 
-        private class ActionLogScope : ILogValues
+        private class ActionLogScope : IReadOnlyList<KeyValuePair<string, object>>
         {
             private readonly ActionDescriptor _action;
 
@@ -70,13 +71,37 @@ namespace Microsoft.AspNet.Mvc.Logging
                 _action = action;
             }
 
-            public IEnumerable<KeyValuePair<string, object>> GetValues()
+            public KeyValuePair<string, object> this[int index]
             {
-                return new KeyValuePair<string, object>[]
+                get
+                {
+                    if (index == 0)
+                    {
+                        return new KeyValuePair<string, object>("ActionId", _action.Id);
+                    }
+                    else if (index == 1)
+                    {
+                        return new KeyValuePair<string, object>("ActionName", _action.DisplayName);
+                    }
+                    throw new IndexOutOfRangeException(nameof(index));
+                }
+            }
+
+            public int Count
+            {
+                get
+                {
+                    return 2;
+                }
+            }
+
+            public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+            {
+                return new List<KeyValuePair<string, object>>
                 {
                     new KeyValuePair<string, object>("ActionId", _action.Id),
                     new KeyValuePair<string, object>("ActionName", _action.DisplayName),
-                };
+                }.GetEnumerator();
             }
 
             public override string ToString()
@@ -84,6 +109,11 @@ namespace Microsoft.AspNet.Mvc.Logging
                 // We don't include the _action.Id here because it's just an opaque guid, and if
                 // you have text logging, you can already use the requestId for correlation.
                 return _action.DisplayName;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
     }
