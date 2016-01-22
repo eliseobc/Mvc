@@ -27,7 +27,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
                 RequestServices = serviceProvider.Object
             };
             var activator = new ServiceBasedControllerActivator();
-            var actionContext = new ControllerContext(new ActionContext(
+            var context = new ControllerContext(new ActionContext(
                 httpContext,
                 new RouteData(),
                 new ControllerActionDescriptor
@@ -36,7 +36,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
                 }));
 
             // Act
-            var instance = activator.Create(actionContext);
+            var instance = activator.Create(context);
 
             // Assert
             Assert.Same(controller, instance);
@@ -49,23 +49,25 @@ namespace Microsoft.AspNet.Mvc.Controllers
             // Arrange
             var expected = "No service for type '" + typeof(DIController) + "' has been registered.";
             var controller = new DIController();
-            var serviceProvider = new Mock<IServiceProvider>();
+
             var httpContext = new DefaultHttpContext
             {
-                RequestServices = serviceProvider.Object
+                RequestServices = Mock.Of<IServiceProvider>()
             };
+
             var activator = new ServiceBasedControllerActivator();
-            var actionContext = new ControllerContext(new ActionContext(
-                httpContext,
-                new RouteData(),
-                new ControllerActionDescriptor
-                {
-                    ControllerTypeInfo = typeof(DIController).GetTypeInfo()
-                }));
+            var context = new ControllerContext(
+                new ActionContext(
+                    httpContext,                
+                    new RouteData(),
+                    new ControllerActionDescriptor
+                    {
+                        ControllerTypeInfo = typeof(DIController).GetTypeInfo()
+                    }));
 
             // Act and Assert
             var ex = Assert.Throws<InvalidOperationException>(
-                () => activator.Create(actionContext));
+                () => activator.Create(context));
 
             Assert.Equal(expected, ex.Message);
         }

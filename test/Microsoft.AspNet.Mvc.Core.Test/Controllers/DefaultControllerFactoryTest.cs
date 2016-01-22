@@ -187,18 +187,19 @@ namespace Microsoft.AspNet.Mvc.Controllers
         }
 
         [Fact]
-        public void DefaultControllerFactory_DisposesIDisposableController()
+        public void DefaultControllerFactory_DelegatesDisposalToControllerActivator()
         {
             // Arrange
-            var factory = CreateControllerFactory();
+            var activatorMock = new Mock<IControllerActivator>();
+            activatorMock.Setup(s => s.Release(It.IsAny<ControllerContext>(), It.IsAny<object>()));
+
+            var factory = CreateControllerFactory(activatorMock.Object);
             var controller = new MyController();
 
             // Act + Assert
-            Assert.False(controller.Disposed);
-
             factory.ReleaseController(new ControllerContext(), controller);
 
-            Assert.True(controller.Disposed);
+            activatorMock.Verify();
         }
 
         private IServiceProvider GetServices()
@@ -216,12 +217,9 @@ namespace Microsoft.AspNet.Mvc.Controllers
 
         private static DefaultControllerFactory CreateControllerFactory(IControllerActivator controllerActivator = null)
         {
-            var controllerActivatorMock = new Mock<IControllerActivator>();
-            controllerActivatorMock
-                .Setup(s => s.Release(It.IsAny<ControllerContext>(), It.IsAny<object>()))
-                .Callback<ControllerContext, object>((c, o) => ((IDisposable)o).Dispose());
+            var activatorMock = new Mock<IControllerActivator>();
 
-            controllerActivator = controllerActivator ?? controllerActivatorMock.Object;
+            controllerActivator = controllerActivator ?? activatorMock.Object;
             var propertyActivators = new IControllerPropertyActivator[]
             {
                 new DefaultControllerPropertyActivator(),

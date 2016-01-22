@@ -31,7 +31,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
                 RequestServices = serviceProvider.Object
             };
 
-            var actionContext = new ControllerContext(
+            var context = new ControllerContext(
                 new ActionContext(
                     httpContext,
                     new RouteData(),
@@ -41,10 +41,24 @@ namespace Microsoft.AspNet.Mvc.Controllers
                     }));
 
             // Act
-            var instance = activator.Create(actionContext);
+            var instance = activator.Create(context);
 
             // Assert
             Assert.IsType(type, instance);
+        }
+
+        [Fact]
+        public void Release_DisposesController_IfDisposable()
+        {
+            // Arrange
+            var controller = new MyController();
+            var activator = new DefaultControllerActivator(Mock.Of<ITypeActivatorCache>());
+
+            // Act
+            activator.Release(new ControllerContext(), controller);
+
+            // Assert
+            Assert.Equal(true, controller.Disposed);
         }
 
         [Theory]
@@ -68,7 +82,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
                     RequestServices = GetServices(),
                 },
             };
-            var factory = new DefaultControllerActivator(new DefaultTypeActivatorCache());
+            var factory = new DefaultControllerActivator(new TypeActivatorCache());
 
             // Act and Assert
             var exception = Assert.Throws<InvalidOperationException>(() => factory.Create(context));
@@ -105,7 +119,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
                 RequestServices = serviceProvider.Object
             };
 
-            var actionContext = new ControllerContext(
+            var context = new ControllerContext(
                 new ActionContext(
                     httpContext,
                     new RouteData(),
@@ -115,7 +129,7 @@ namespace Microsoft.AspNet.Mvc.Controllers
                     }));
 
             // Act
-            var instance = activator.Create(actionContext);
+            var instance = activator.Create(context);
 
             // Assert
             var controller = Assert.IsType<TypeDerivingFromControllerWithServices>(instance);
@@ -146,11 +160,11 @@ namespace Microsoft.AspNet.Mvc.Controllers
             var metadataProvider = new EmptyModelMetadataProvider();
             var services = new Mock<IServiceProvider>();
             services.Setup(s => s.GetService(typeof(IUrlHelper)))
-                    .Returns(Mock.Of<IUrlHelper>());
+                .Returns(Mock.Of<IUrlHelper>());
             services.Setup(s => s.GetService(typeof(IModelMetadataProvider)))
-                    .Returns(metadataProvider);
+                .Returns(metadataProvider);
             services.Setup(s => s.GetService(typeof(IObjectModelValidator)))
-                    .Returns(new DefaultObjectValidator(metadataProvider));
+                .Returns(new DefaultObjectValidator(metadataProvider));
             return services.Object;
         }
 
@@ -172,6 +186,16 @@ namespace Microsoft.AspNet.Mvc.Controllers
 
         private interface InterfaceType
         {
+        }
+
+        private class MyController : IDisposable
+        {
+            public bool Disposed { get; set; }
+
+            public void Dispose()
+            {
+                Disposed = true;
+            }
         }
     }
 }
