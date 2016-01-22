@@ -5,6 +5,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Http.Internal;
 using Microsoft.AspNet.Mvc.Infrastructure;
+using Microsoft.AspNet.Mvc.ModelBinding;
+using Microsoft.AspNet.Mvc.ModelBinding.Validation;
 using Microsoft.AspNet.Mvc.Rendering;
 using Moq;
 using Xunit;
@@ -35,6 +37,41 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
             // Assert
             Assert.NotNull(instance);
             Assert.Same(context, instance.ViewComponentContext);
+        }
+
+        [Theory]
+        [InlineData(typeof(int))]
+        [InlineData(typeof(OpenGenericType<>))]
+        [InlineData(typeof(AbstractType))]
+        [InlineData(typeof(InterfaceType))]
+        public void Create_ThrowsIfControllerCannotBeActivated(Type type)
+        {
+            // Arrange
+            var actionDescriptor = new ViewComponentDescriptor
+            {
+                Type = type
+            };
+
+            var context = new ViewComponentContext
+            {
+                ViewComponentDescriptor = actionDescriptor,
+                ViewContext = new ViewContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                    {
+                        RequestServices = Mock.Of<IServiceProvider>()
+                    },
+                }
+            };
+
+            var activator = new DefaultViewComponentActivator(new DefaultTypeActivatorCache());
+
+            // Act and Assert
+            var exception = Assert.Throws<InvalidOperationException>(() => activator.Create(context));
+            Assert.Equal(
+                $"The type '{type.FullName}' cannot be activated by '{typeof(DefaultViewComponentActivator).FullName}' " +
+                "because it is either a value type, an interface, an abstract class or an open generic type.",
+                exception.Message);
         }
 
         [Fact]
@@ -79,19 +116,31 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
                 }
             };
         }
-    }
 
-    public class TestViewComponent : ViewComponent
-    {
-        public Task ExecuteAsync()
+        private class OpenGenericType<T> : Controller
         {
-            throw new NotImplementedException();
         }
-    }
 
-    public class VisibilityViewComponent : ViewComponent
-    {
-        [ViewComponentContext]
-        protected internal ViewComponentContext C { get; set; }
+        private abstract class AbstractType : Controller
+        {
+        }
+
+        private interface InterfaceType
+        {
+        }
+
+        private class TestViewComponent : ViewComponent
+        {
+            public Task ExecuteAsync()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class VisibilityViewComponent : ViewComponent
+        {
+            [ViewComponentContext]
+            protected internal ViewComponentContext C { get; set; }
+        }
     }
 }

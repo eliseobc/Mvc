@@ -43,10 +43,10 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
 
             var componentType = context.ViewComponentDescriptor.Type.GetTypeInfo();
 
-            if (!componentType.IsClass ||
-                !componentType.IsPublic ||
+            if (componentType.IsValueType ||
+                componentType.IsInterface ||
                 componentType.IsAbstract ||
-                componentType.ContainsGenericParameters)
+                (componentType.IsGenericType && componentType.IsGenericTypeDefinition))
             {
                 var message = Resources.FormatValueInterfaceAbstractOrOpenGenericTypesCannotBeActivated(
                     componentType.FullName,
