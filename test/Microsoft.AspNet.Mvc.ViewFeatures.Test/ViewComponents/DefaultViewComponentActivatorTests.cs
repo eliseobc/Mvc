@@ -4,9 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Http.Internal;
-using Microsoft.AspNet.Mvc.Infrastructure;
-using Microsoft.AspNet.Mvc.ModelBinding;
-using Microsoft.AspNet.Mvc.ModelBinding.Validation;
+using Microsoft.AspNet.Mvc.Internal;
 using Microsoft.AspNet.Mvc.Rendering;
 using Moq;
 using Xunit;
@@ -64,7 +62,7 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
                 }
             };
 
-            var activator = new DefaultViewComponentActivator(new DefaultTypeActivatorCache());
+            var activator = new DefaultViewComponentActivator(new TypeActivatorCache());
 
             // Act and Assert
             var exception = Assert.Throws<InvalidOperationException>(() => activator.Create(context));

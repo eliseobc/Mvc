@@ -583,21 +583,21 @@ namespace Microsoft.AspNet.Mvc
                 return reader.ReadToEnd();
             }
         }
-    }
 
-    public class TextViewComponent : ViewComponent
-    {
-        public HtmlString Invoke(string name)
+        private class TextViewComponent : ViewComponent
         {
-            return new HtmlString("Hello, " + name);
+            public HtmlString Invoke(string name)
+            {
+                return new HtmlString("Hello, " + name);
+            }
         }
-    }
 
-    public class AsyncTextViewComponent : ViewComponent
-    {
-        public Task<HtmlString> InvokeAsync(string name)
+        private class AsyncTextViewComponent : ViewComponent
         {
-            return Task.FromResult(new HtmlString("Hello-Async, " + name));
+            public Task<HtmlString> InvokeAsync(string name)
+            {
+                return Task.FromResult(new HtmlString("Hello-Async, " + name));
+            }
         }
     }
 }
