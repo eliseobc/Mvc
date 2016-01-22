@@ -36,7 +36,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             if (bindingContext.ModelType != typeof(IFormFile) &&
                 !typeof(IEnumerable<IFormFile>).IsAssignableFrom(bindingContext.ModelType))
             {
-                return ModelBindingResult.NoResultAsync;
+                return Internal.TaskCache.CompletedTask;
             }
 
             return BindModelCoreAsync(bindingContext);

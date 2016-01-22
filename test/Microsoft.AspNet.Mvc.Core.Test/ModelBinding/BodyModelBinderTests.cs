@@ -114,7 +114,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
-            Assert.Equal(ModelBindingResult.NoResult, binderResult);
+            Assert.Equal(default(ModelBindingResult), binderResult);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
             var binderResult = await binder.BindModelResultAsync(bindingContext);
 
             // Assert
-            Assert.Equal(ModelBindingResult.NoResult, binderResult);
+            Assert.Equal(default(ModelBindingResult), binderResult);
         }
 
         [Fact]
