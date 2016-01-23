@@ -108,7 +108,7 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
             var services = context.ViewContext.HttpContext.RequestServices;
             var component = _typeActivatorCache.CreateInstance<object>(
                 services,
-                context.ViewComponentDescriptor.Type);
+                context.ViewComponentDescriptor.TypeInfo.AsType());
             _viewComponentActivator.Activate(component, context);
             return component;
         }

@@ -74,7 +74,7 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
             {
                 FullName = ViewComponentConventions.GetComponentFullName(typeInfo),
                 ShortName = ViewComponentConventions.GetComponentName(typeInfo),
-                Type = type,
+                TypeInfo = type.GetTypeInfo(),
                 MethodInfo = FindMethod(type)
             };
 

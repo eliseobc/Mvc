@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.Http.Internal;
@@ -81,7 +82,7 @@ namespace Microsoft.AspNet.Mvc
 
             var viewComponentDescriptor = new ViewComponentDescriptor()
             {
-                Type = typeof(object),
+                TypeInfo = typeof(object).GetTypeInfo(),
             };
 
             var viewComponentContext = new ViewComponentContext(

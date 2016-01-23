@@ -536,7 +536,7 @@ namespace Microsoft.AspNet.Mvc
             var viewComponentDescriptor = new ViewComponentDescriptor()
             {
                 ShortName = "Invoke",
-                Type = typeof(object),
+                TypeInfo = typeof(object).GetTypeInfo(),
                 MethodInfo = typeof(object).GetTypeInfo().DeclaredMethods.First()
             };
 

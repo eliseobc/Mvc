@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Html;
@@ -120,7 +121,7 @@ namespace Microsoft.AspNet.Mvc.ViewComponents
             for (var i = 0; i < descriptors.Items.Count; i++)
             {
                 var descriptor = descriptors.Items[i];
-                if (descriptor.Type == componentType)
+                if (descriptor.TypeInfo == componentType?.GetTypeInfo())
                 {
                     return descriptor;
                 }
